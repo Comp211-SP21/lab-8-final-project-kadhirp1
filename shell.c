@@ -47,11 +47,11 @@ void parse( char* line, command_t* p_cmd ) {
     if (i > 1){
         p_cmd->argv[j] = NULL;
     }
-    printf("argc is %d\n",p_cmd->argc);
-    printf("argv 0 is %s\n",p_cmd->argv[0]);
-    printf("argv 1 is %s\n", p_cmd->argv[1]);
-    printf("argv 2 is %s\n", p_cmd->argv[2]);
-    printf("path is %s\n", p_cmd->path);
+//    printf("argc is %d\n",p_cmd->argc);
+//    printf("argv 0 is %s\n",p_cmd->argv[0]);
+//    printf("argv 1 is %s\n", p_cmd->argv[1]);
+//    printf("argv 2 is %s\n", p_cmd->argv[2]);
+//    printf("path is %s\n", p_cmd->path);
     return;
 } // end parse function
 
@@ -63,31 +63,37 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
     }
     char fullpath[200];
     int exists = FALSE;
-   struct stat buffer;
+    struct stat buffer;
     char* file_or_dir;
-    printf("2: The path is %s\n", getenv( "PATH" ));
     char *pathCopy = getenv("PATH");;
-    printf("Copy tempvar is: %s\n", pathCopy);
     char *token = strtok(pathCopy,":");
+    char fullPathName[1000];
+    file_or_dir = command_name;
     while (token != NULL){
-        exists = stat( file_or_dir, &buffer);
+        strcpy(fullPathName, token);
+        strcat(fullPathName, "/");
+        strcat(fullPathName,file_or_dir);
+//        file_or_dir = token;
+    //    printf("fullPathName is %s\n", fullPathName);
+        exists = stat( fullPathName, &buffer);
    //     printf("2: the token is: %s\n",token); 
         if ( exists == 0 && (S_IFDIR & buffer.st_mode) ) {
             //Dir exist
-            printf("Dir found\n");
-            p_cmd->path = token;
         }
         else if ( exists == 0 && (S_IFREG & buffer.st_mode) ) {
             //File
-            printf("File found\n");
-            p_cmd->path = token;
+    //      printf("File found\n");
+
+   //         printf("fullPathName after path found %s\n", fullPathName);
+            p_cmd->path = fullPathName;
+            break;
         }
         else{
             p_cmd->path = command_name;
-            printf("Not found\n");
+    //        printf("Not found\n");
         }
         token = strtok(NULL, ":");
-        file_or_dir = token;
+        fullPathName[0] = '\0';
     }
     return exists;
 
