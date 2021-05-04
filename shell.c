@@ -19,7 +19,22 @@ const char* valid_builtin_commands[] = {"cd", "exit", NULL};
 
 void parse( char* line, command_t* p_cmd ) {
     // TO-DO: COMPLETE THIS FUNCTION BODY
+    char arr[100];
+    strcpy(arr,line);
+    char* token;
+    token = strtok(arr, " ");
+    int i=0;
 
+    while (token != NULL){
+        p_cmd->argv[i] = token;
+        token = strtok(NULL, " ");
+        i++;
+    }
+
+    p_cmd->argc = i;
+    if (is_builtin(p_cmd)){
+        do_builtin(p_cmd);
+    }
     return;
 } // end parse function
 
@@ -28,7 +43,25 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
     // TO-DO: COMPLETE THIS FUNCTION BODY
     char fullpath[200];
     int exists = FALSE;
-
+    struct stat buffer;
+    char* file_or_dir;
+    char *token = strtok(getenv( "PATH" ),":");
+    while (token != NULL){
+        exists = stat( file_or_dir, &buffer);
+        
+        if ( exists == 0 && (S_IFDIR & buffer.st_mode) ) {
+            //Dir exist
+            p_cmd->path = token;
+        }
+        else if ( exists == 0 && (S_IFREG & buffer.st_mode) ) {
+            //File
+            p_cmd->path = token;
+        }
+        else{
+            p_cmd->path = command_name;
+        }
+        token = strtok(NULL, ":");
+    }
     return exists;
 
 } // end find_fullpath function
