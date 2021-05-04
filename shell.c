@@ -38,6 +38,7 @@ void parse( char* line, command_t* p_cmd ) {
     if (is_builtin(p_cmd)){
         do_builtin(p_cmd);
     }
+    
     else{
         find_fullpath(p_cmd->argv[0],p_cmd);
     }
@@ -64,24 +65,29 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
     int exists = FALSE;
    struct stat buffer;
     char* file_or_dir;
-    char *token = strtok(getenv( "PATH" ),":");
-
     printf("2: The path is %s\n", getenv( "PATH" ));
+    char *pathCopy = getenv("PATH");;
+    printf("Copy tempvar is: %s\n", pathCopy);
+    char *token = strtok(pathCopy,":");
     while (token != NULL){
         exists = stat( file_or_dir, &buffer);
-        printf("2: the token is: %s\n",token); 
+   //     printf("2: the token is: %s\n",token); 
         if ( exists == 0 && (S_IFDIR & buffer.st_mode) ) {
             //Dir exist
+            printf("Dir found\n");
             p_cmd->path = token;
         }
         else if ( exists == 0 && (S_IFREG & buffer.st_mode) ) {
             //File
+            printf("File found\n");
             p_cmd->path = token;
         }
         else{
             p_cmd->path = command_name;
+            printf("Not found\n");
         }
         token = strtok(NULL, ":");
+        file_or_dir = token;
     }
     return exists;
 
