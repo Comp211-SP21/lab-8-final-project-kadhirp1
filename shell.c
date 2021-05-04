@@ -29,14 +29,15 @@ void parse( char* line, command_t* p_cmd ) {
     int i=0;
     
     while (token != NULL){
-        p_cmd->argv[i] = token;
+        strcpy(p_cmd->argv[i], token);
         token = strtok(NULL, " ");
         i++;
     }
 
     p_cmd->argc = i;
+
     if (is_builtin(p_cmd)){
-        do_builtin(p_cmd);
+
     }
     
     else{
@@ -51,7 +52,7 @@ void parse( char* line, command_t* p_cmd ) {
 //    printf("argv 0 is %s\n",p_cmd->argv[0]);
 //    printf("argv 1 is %s\n", p_cmd->argv[1]);
 //    printf("argv 2 is %s\n", p_cmd->argv[2]);
-//    printf("path is %s\n", p_cmd->path);
+
     return;
 } // end parse function
 
@@ -68,7 +69,7 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
     char *pathCopy = getenv("PATH");;
     char *token = strtok(pathCopy,":");
     char fullPathName[1000];
-    file_or_dir = command_name;
+    strcpy(file_or_dir,command_name);
     while (token != NULL){
         strcpy(fullPathName, token);
         strcat(fullPathName, "/");
@@ -85,10 +86,12 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
     //      printf("File found\n");
 
    //         printf("fullPathName after path found %s\n", fullPathName);
+            strcpy(p_cmd->path,fullPathName);
             p_cmd->path = fullPathName;
             break;
         }
         else{
+            strcpy(p_cmd->path,command_name);
             p_cmd->path = command_name;
     //        printf("Not found\n");
         }
