@@ -24,9 +24,10 @@ void parse( char* line, command_t* p_cmd ) {
     char arr[100];
     strcpy(arr,line);
     char* token;
-    token = strtok(arr, " ");
+    const char delimit[] = ", \n";
+    token = strtok(arr, delimit);
     int i=0;
-
+    
     while (token != NULL){
         p_cmd->argv[i] = token;
         token = strtok(NULL, " ");
@@ -37,20 +38,38 @@ void parse( char* line, command_t* p_cmd ) {
     if (is_builtin(p_cmd)){
         do_builtin(p_cmd);
     }
+    else{
+        find_fullpath(p_cmd->argv[0],p_cmd);
+    }
+
+    int j = i++;
+    if (i > 1){
+        p_cmd->argv[j] = NULL;
+    }
+    printf("argc is %d\n",p_cmd->argc);
+    printf("argv 0 is %s\n",p_cmd->argv[0]);
+    printf("argv 1 is %s\n", p_cmd->argv[1]);
+    printf("argv 2 is %s\n", p_cmd->argv[2]);
+    printf("path is %s\n", p_cmd->path);
     return;
 } // end parse function
 
 
 int find_fullpath( char* command_name, command_t* p_cmd ) {
     // TO-DO: COMPLETE THIS FUNCTION BODY
+    if (p_cmd->argc < 2){
+        return 0;
+    }
     char fullpath[200];
     int exists = FALSE;
-    struct stat buffer;
+   struct stat buffer;
     char* file_or_dir;
     char *token = strtok(getenv( "PATH" ),":");
+
+    printf("2: The path is %s\n", getenv( "PATH" ));
     while (token != NULL){
         exists = stat( file_or_dir, &buffer);
-        
+        printf("2: the token is: %s\n",token); 
         if ( exists == 0 && (S_IFDIR & buffer.st_mode) ) {
             //Dir exist
             p_cmd->path = token;
