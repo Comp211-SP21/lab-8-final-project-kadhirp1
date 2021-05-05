@@ -24,6 +24,8 @@ void parse( char* line, command_t* p_cmd ) {
     for (int i=0; i<50; i++){
         p_cmd->argv[i] = malloc(sizeof(char) * 100);
     }
+    p_cmd->argc = 0;
+    p_cmd->path =malloc(sizeof(char*)*50);
 //    printf("Beginning 0 values: %s\n", p_cmd->argv[0]);
     char arr[100];
     strcpy(arr,line);
@@ -62,20 +64,25 @@ void parse( char* line, command_t* p_cmd ) {
             
             }
    // printf("argc is %d\n",p_cmd->argc);
-    for (int k=0; k<p_cmd->argc; k++){
-    //    printf("argv %d is %s\n",k, p_cmd->argv[k]);
-    }
         
     if (is_builtin(p_cmd)){
 
   }
-    else{
+    else if (!find_fullpath(p_cmd->argv[0],p_cmd)){
         find_fullpath(p_cmd->argv[0],p_cmd);
-     //   printf("i directly after call is %d\n",i);
+        //printf("i directly after call is %d\n",i);
         
+        //printf("find_fullpath returns: %d\n",find_fullpath(p_cmd->argv[0],p_cmd));
+    }
+    else{
+        p_cmd->argc = ERROR;
     }
     //printf("path is: %s\n", p_cmd->path);
 
+//    printf("argc after fullpath is: %d\n", p_cmd->argc);
+    for (int k=0; k<p_cmd->argc; k++){
+ //       printf("argv %d is %s\n",k, p_cmd->argv[k]);
+    }
 
     //printf("Endingg 0 values: %s\n", p_cmd->argv[0]);
     return;
@@ -108,7 +115,6 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
         strcat(fullPathName,file_or_dir);
 //        file_or_dir = token;
     //    printf("fullPathName is %s\n", fullPathName);
-//        printf("Search for: %s\n", fullPathName);
         exists = stat( fullPathName, &buffer);
    //     printf("2: the token is: %s\n",token); 
         if ( exists == 0 && (S_IFDIR & buffer.st_mode) ) {
@@ -118,7 +124,7 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
             //File
     //      printf("File found\n");
 
-   //         printf("fullPathName after path found %s\n", fullPathName);
+        //    printf("fullPathName after path found %s\n", fullPathName);
             strcpy(p_cmd->path,fullPathName);
   //          printf("Breaking here\n");
             break;
@@ -126,9 +132,6 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
         else{
             strcpy(p_cmd->path,command_name);
         //    printf("Argc in function call: %d\n", p_cmd->argc); 
-            for (int i=0; i<50; i++){
-                 p_cmd->argv[i] = NULL;
-            }
          //   printf("Not found\n");
         }
         token = strtok(NULL, ":");
