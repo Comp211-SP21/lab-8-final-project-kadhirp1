@@ -77,11 +77,11 @@ void parse( char* line, command_t* p_cmd ) {
     else{
         p_cmd->argc = ERROR;
     }
-    printf("path is: %s\n", p_cmd->path);
+//    printf("path is: %s\n", p_cmd->path);
 
 //    printf("argc after fullpath is: %d\n", p_cmd->argc);
-    for (int k=0; k<p_cmd->argc; k++){
-        printf("argv %d is %s\n",k, p_cmd->argv[k]);
+    for (int k=0; k<=p_cmd->argc; k++){
+ //       printf("argv %d is %s\n",k, p_cmd->argv[k]);
     }
 
     //printf("Endingg 0 values: %s\n", p_cmd->argv[0]);
@@ -98,13 +98,15 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
     struct stat buffer;
     char* file_or_dir = malloc(256);
     char* file_or_dir_save = file_or_dir;
+    const char delimit[] = ":\n";
         
     char *pathCopy = malloc(256);
     char *pathCopySave;// = pathCopy;
     char *pathPointer = pathCopy; 
     pathCopySave = getenv( "PATH" );
+
     strcpy(pathCopy,pathCopySave);
-    char *token = strtok(pathCopy,":");
+    char *token = strtok(pathCopy,delimit);
     char fullPathName[100];
     strcpy(file_or_dir,command_name);
 //    printf("The file is: %s\n", file_or_dir);
@@ -134,7 +136,7 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
         //    printf("Argc in function call: %d\n", p_cmd->argc); 
          //   printf("Not found\n");
         }
-        token = strtok(NULL, ":");
+        token = strtok(NULL, delimit);
         fullPathName[0] = '\0';
     }
     free(pathPointer);
@@ -157,10 +159,15 @@ int execute( command_t* p_cmd ) {
         return status;
     }
     else if (child_pid == 0){
-        printf("Path is: .%s.\n",p_cmd->path);
-        for (int i=0; i<p_cmd->argc; i++){
-            printf("Argv %d\n is .%s.\n",i,p_cmd->argv[i]);
+//        printf("Path is: .%s.\n",p_cmd->path);
+ //       printf("Argc is: %d\n", p_cmd->argc);
+        int i=0;
+        for (i=0; i<p_cmd->argc; i++){
+  //          printf("Argv %d\n is .%s.\n",i,p_cmd->argv[i]);
         }
+        i = p_cmd->argc ++;
+        p_cmd->argv[p_cmd->argc] = NULL;
+        p_cmd->argv[i] = NULL;
         execv(p_cmd->path, p_cmd->argv);
         perror("Execute terminated with an error condition!\n");
         exit(1);
