@@ -26,25 +26,15 @@ void parse( char* line, command_t* p_cmd ) {
     }
     p_cmd->argc = 0;
     p_cmd->path =malloc(sizeof(char*)*50);
-//    printf("Beginning 0 values: %s\n", p_cmd->argv[0]);
-    char arr[100];
-    strcpy(arr,line);
+    char lineArr[100];
+    strcpy(lineArr,line);
     char* token;
     const char delimit[] = ", \n";
-    token = strtok(arr, delimit);
+    token = strtok(lineArr, delimit);
     int i=0;
-//    char *p1,*p2,*p3,*p4,*p5;
-//    p1 = p_cmd->argv[0];
-//    p1 = p_cmd->argv[1];
-//    p1 = p_cmd->argv[2];
-//    p1 = p_cmd->argv[3];
-//    p1 = p_cmd->argv[4];
 
-//    printf("Whole line: %s\n", line); 
     while (token != NULL){
- //       printf("Token is: %s\n",token);
         strcpy(p_cmd->argv[i], token);
-//        p_cmd->argv[i] = token;
         token = strtok(NULL, delimit);
         i++;
     }
@@ -52,39 +42,18 @@ void parse( char* line, command_t* p_cmd ) {
     
     p_cmd->argc = i;
     strcpy(p_cmd->path,p_cmd->argv[0]);
-    int j=0;
-    j = i++;
     if (i > 0){
-        //printf("Null terminate value is %s\n",p_cmd->argv[i]);
         p_cmd->argv[i] = NULL;
     }
-    if (i == 1 && equals(p_cmd->argv[0], "exit")){
-//            p_cmd->path = "exit";
-//            strcpy(p_cmd->path , "exit");
-            
-            }
-   // printf("argc is %d\n",p_cmd->argc);
         
     if (is_builtin(p_cmd)){
-
-  }
+    }
     else if (!find_fullpath(p_cmd->argv[0],p_cmd)){
         find_fullpath(p_cmd->argv[0],p_cmd);
-        //printf("i directly after call is %d\n",i);
-        
-        //printf("find_fullpath returns: %d\n",find_fullpath(p_cmd->argv[0],p_cmd));
     }
     else{
         p_cmd->argc = ERROR;
     }
-//    printf("path is: %s\n", p_cmd->path);
-
-//    printf("argc after fullpath is: %d\n", p_cmd->argc);
-    for (int k=0; k<=p_cmd->argc; k++){
- //       printf("argv %d is %s\n",k, p_cmd->argv[k]);
-    }
-
-    //printf("Endingg 0 values: %s\n", p_cmd->argv[0]);
     return;
 } // end parse function
 
@@ -109,39 +78,28 @@ int find_fullpath( char* command_name, command_t* p_cmd ) {
     char *token = strtok(pathCopy,delimit);
     char fullPathName[100];
     strcpy(file_or_dir,command_name);
-//    printf("The file is: %s\n", file_or_dir);
-//    printf("Path copy is: %s\n", pathCopy);
     while (token != NULL){
         strcpy(fullPathName, token);
         strcat(fullPathName, "/");
         strcat(fullPathName,file_or_dir);
-//        file_or_dir = token;
-    //    printf("fullPathName is %s\n", fullPathName);
         exists = stat( fullPathName, &buffer);
-   //     printf("2: the token is: %s\n",token); 
         if ( exists == 0 && (S_IFDIR & buffer.st_mode) ) {
            ; //Dir exist
         }
         else if ( exists == 0 && (S_IFREG & buffer.st_mode) ) {
             //File
-    //      printf("File found\n");
 
-        //    printf("fullPathName after path found %s\n", fullPathName);
             strcpy(p_cmd->path,fullPathName);
-  //          printf("Breaking here\n");
             break;
         }
         else{
             strcpy(p_cmd->path,command_name);
-        //    printf("Argc in function call: %d\n", p_cmd->argc); 
-         //   printf("Not found\n");
         }
         token = strtok(NULL, delimit);
         fullPathName[0] = '\0';
     }
     free(pathPointer);
     free(file_or_dir_save);
- //   printf("Done with function \n");
     return exists;
 
 } // end find_fullpath function
@@ -159,12 +117,7 @@ int execute( command_t* p_cmd ) {
         return status;
     }
     else if (child_pid == 0){
-//        printf("Path is: .%s.\n",p_cmd->path);
- //       printf("Argc is: %d\n", p_cmd->argc);
         int i=0;
-        for (i=0; i<p_cmd->argc; i++){
-  //          printf("Argv %d\n is .%s.\n",i,p_cmd->argv[i]);
-        }
         i = p_cmd->argc ++;
         p_cmd->argv[p_cmd->argc] = NULL;
         p_cmd->argv[i] = NULL;
@@ -244,17 +197,12 @@ int do_builtin( command_t* p_cmd ) {
 void cleanup( command_t* p_cmd ) {
 
     int i=0;
-   // printf("Clean up starts\n");
     while ( p_cmd->argv[i] != NULL ) {
-    //    printf("Iteration %d\n", i);
         free( p_cmd->argv[i] );
         i++;
     }
-   // printf("argv cleanup pointer success\n");
     free( p_cmd->argv );
-   // printf("argv cleanup\n");
     free( p_cmd->path );	
-   // printf("path cleanup\n");
 
 } // end cleanup function
 
