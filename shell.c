@@ -56,7 +56,7 @@ void parse( char* line, command_t* p_cmd ) {
     j = i++;
     if (i > 0){
         //printf("Null terminate value is %s\n",p_cmd->argv[i]);
-        p_cmd->argv[i] = '\0';
+        p_cmd->argv[i] = NULL;
     }
     if (i == 1 && equals(p_cmd->argv[0], "exit")){
 //            p_cmd->path = "exit";
@@ -77,11 +77,11 @@ void parse( char* line, command_t* p_cmd ) {
     else{
         p_cmd->argc = ERROR;
     }
-    //printf("path is: %s\n", p_cmd->path);
+    printf("path is: %s\n", p_cmd->path);
 
 //    printf("argc after fullpath is: %d\n", p_cmd->argc);
     for (int k=0; k<p_cmd->argc; k++){
- //       printf("argv %d is %s\n",k, p_cmd->argv[k]);
+        printf("argv %d is %s\n",k, p_cmd->argv[k]);
     }
 
     //printf("Endingg 0 values: %s\n", p_cmd->argv[0]);
@@ -150,7 +150,24 @@ int execute( command_t* p_cmd ) {
     int status = SUCCESSFUL;
     int child_process_status;
     pid_t child_pid;
-
+    
+    child_pid = fork();
+    if (child_pid == -1){
+        status = ERROR;
+        return status;
+    }
+    else if (child_pid == 0){
+        printf("Path is: .%s.\n",p_cmd->path);
+        for (int i=0; i<p_cmd->argc; i++){
+            printf("Argv %d\n is .%s.\n",i,p_cmd->argv[i]);
+        }
+        execv(p_cmd->path, p_cmd->argv);
+        perror("Execute terminated with an error condition!\n");
+        exit(1);
+    }
+    else{
+         wait(NULL);
+    }
 
     return status;
 
